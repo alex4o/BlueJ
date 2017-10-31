@@ -1,0 +1,41 @@
+#!/bin/sh
+
+unset JAVAPATH
+
+FOUND="false"
+for VMNAME in java-8-oracle jdk-8-oracle java-8-openjdk ; do
+    for JDKCANDIDATE in /usr/lib/jvm/"$VMNAME"* ; do
+        if [ -e "$JDKCANDIDATE"/lib/tools.jar ]; then
+	        JAVAPATH="$JDKCANDIDATE"
+                FOUND="true"
+	        break
+        fi
+    done
+    if [ x"$FOUND" = x"true" ]; then
+       break;
+    fi
+done
+
+if [ x"$JAVAPATH" = x"" ]; then
+	echo "A suitable JDK couldn't be located. You may need to edit the"
+	echo "/usr/bin/bluej launch script."
+	exit 1
+fi
+	
+#SPECIAL CASE for the Raspberry Pi
+if grep -q "BCM270" /proc/cpuinfo; then
+    export J2D_PIXMAPS=shared
+fi
+
+CP="/usr/share/bluej/bluej.jar:$JAVAPATH/lib/tools.jar"
+JFXRTOPT=""
+
+# If JavaFX library is not within the JDK, look for OpenJFX:
+if [ ! -e "$JAVAPATH/jre/lib/ext/jfxrt.jar" ]; then
+    if [ -e "/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar" ]; then
+        CP="$CP:/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
+        JFXRTOPT="-jfxrt.jarpath=/usr/share/java/openjfx/jre/lib/ext/jfxrt.jar"
+    fi
+fi
+
+"$JAVAPATH/bin/java" -Djavafx.embed.singleThread=true -Dawt.useSystemAAFontSettings=on -Xmx512M -cp "$CP" bluej.Boot  "$@"
