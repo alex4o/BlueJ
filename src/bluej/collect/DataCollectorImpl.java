@@ -328,7 +328,7 @@ public class DataCollectorImpl
         {
             // It is important we add Stride file first, then Java, because Java will note it is generated from the Stride
             // file, so server needs to process the Stride file first:
-            for (SourceFileInfo fileInfo : ct.getAllSourceFilesJavaLast())
+            for (SourceFileInfo fileInfo : ct.getAllSourceFiles())
             {
                 String relative = CollectUtility.toPath(proj, fileInfo.file);
                 mpe.addPart("project[source_files][][name]", CollectUtility.toBody(relative));

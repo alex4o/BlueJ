@@ -17,7 +17,8 @@
                     deprecation="yes"
                     includeantruntime="false"
                     debug="true"
-                    encoding="utf-8">
+                    encoding="utf-8"
+                    verbose="false">
                 <options/>
             </javac>
         </sequential>

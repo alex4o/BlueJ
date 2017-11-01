@@ -346,7 +346,7 @@ public abstract class ClassRole
         List<File> rlist = new ArrayList<>();
         
         rlist.add(ct.getClassFile());
-        rlist.addAll(Utility.mapList(ct.getAllSourceFilesJavaLast(), sf -> sf.file));
+        rlist.addAll(Utility.mapList(ct.getAllSourceFiles(), sf -> sf.file));
         rlist.add(ct.getContextFile());
         rlist.add(ct.getDocumentationFile());
         

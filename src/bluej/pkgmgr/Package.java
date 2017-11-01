@@ -41,8 +41,10 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import bluej.extensions.event.DependencyEvent;
+import bluej.utility.filefilter.*;
 import javafx.application.Platform;
 
 import bluej.compiler.CompileInputFile;
@@ -100,10 +102,6 @@ import bluej.utility.FileUtility;
 import bluej.utility.JavaNames;
 import bluej.utility.SortedProperties;
 import bluej.utility.Utility;
-import bluej.utility.filefilter.FrameSourceFilter;
-import bluej.utility.filefilter.JavaClassFilter;
-import bluej.utility.filefilter.JavaSourceFilter;
-import bluej.utility.filefilter.SubPackageFilter;
 
 import threadchecker.OnThread;
 import threadchecker.Tag;
@@ -590,8 +588,11 @@ public final class Package
         File javaSrcFiles[] = path.listFiles(new JavaSourceFilter());
         File frameSrcFiles[] = path.listFiles(new FrameSourceFilter());
         File classFiles[] = path.listFiles(new JavaClassFilter());
+        File kotlinSrcFiles[] = path.listFiles(new KotlinSourceFilter());
 
         Set<String> interestingSet = new HashSet<String>();
+
+        interestingSet.addAll(Arrays.stream(kotlinSrcFiles).map(f -> f.getName()).map(fn -> JavaNames.stripSuffix(fn, "." + SourceType.Kotlin.getExtension())).collect(Collectors.toList()));
 
         // process all *.java files
         for (int i = 0; i < javaSrcFiles.length; i++) {
@@ -1186,6 +1187,8 @@ public final class Package
             className = fileName.substring(0, fileName.length() - SourceType.Java.getExtension().length() - 1);
         else if (fileName.endsWith("." + SourceType.Stride.getExtension())) // it's a Stride source file
             className = fileName.substring(0, fileName.length() - SourceType.Stride.getExtension().length() - 1);
+        else if (fileName.endsWith("." + SourceType.Kotlin.getExtension()))
+            className = fileName.substring(0, fileName.length() - SourceType.Kotlin.getExtension().length() - 1);
         else
             return ILLEGAL_FORMAT;
 
@@ -2616,12 +2619,12 @@ public final class Package
                     continue;
                 }
 
-                boolean newCompiledState = successful;
+                boolean newCompiledState = true;
 
                 if (successful) {
                     t.endCompile();
 
-                    //check if there already exists a class in a library with that name 
+                    //check if there already exists a class in a library with that name
                     Class<?> c = loadClass(getQualifiedName(t.getIdentifierName()));
                     if (c!=null){
                         if (! checkClassMatchesFile(c, t.getClassFile())) {

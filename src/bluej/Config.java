@@ -701,8 +701,8 @@ public final class Config
                     Debug.message("Running on: " + System.getProperty("os.name") +
                             " " + System.getProperty("os.version") +
                             " (" + System.getProperty("os.arch") + ")");
-                    Debug.message("Java Home: " + System.getProperty("java.home"));            
-                    Debug.message("----");    
+                    Debug.message("Java Home: " + System.getProperty("java.home"));
+                    Debug.message("----");
                     return;
                 }
                 catch (IOException e) {
@@ -2179,6 +2179,8 @@ public final class Config
     public enum SourceType
     {
         Java,
-        Stride
+        Stride,
+        Kotlin,
+        Scala
     }
 }

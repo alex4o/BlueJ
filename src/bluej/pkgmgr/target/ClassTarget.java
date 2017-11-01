@@ -311,6 +311,8 @@ public class ClassTarget extends DependentTarget
             sourceAvailable = SourceType.Stride;
         else if (getJavaSourceFile().canRead())
             sourceAvailable = SourceType.Java;
+        else if (getKotlinSourceFile().canRead())
+            sourceAvailable = SourceType.Kotlin;
         else
         {
             sourceAvailable = SourceType.NONE;
@@ -956,6 +958,13 @@ public class ClassTarget extends DependentTarget
     {
         return new File(getPackage().getPath(), getBaseName() + "." + SourceType.Java.toString().toLowerCase());
     }
+    /**
+     * @return the name of the Kotlin file this target corresponds to.
+     */
+    public File getKotlinSourceFile()
+    {
+        return new File(getPackage().getPath(), getBaseName() + "." + "kt");
+    }
     
     /**
      * @return the name of the Stride file this target corresponds to. This is only valid for Stride targets.
@@ -973,6 +982,7 @@ public class ClassTarget extends DependentTarget
         {
             case Java: return getJavaSourceFile();
             case Stride: return getFrameSourceFile();
+            case Kotlin: return getKotlinSourceFile();
         }
         return null;
     }
@@ -1011,13 +1021,13 @@ public class ClassTarget extends DependentTarget
      * If this is a Stride class, returns the .stride and .java source files, *in that order*.
      * This is a strict requirement in the call in DataCollectorImpl, do not change the order.
      */
-    public Collection<SourceFileInfo> getAllSourceFilesJavaLast()
+    public Collection<SourceFileInfo> getAllSourceFiles()
     {
         List<SourceFileInfo> list = new ArrayList<>();
         if (sourceAvailable.equals(SourceType.Stride)) {
             list.add(new SourceFileInfo(getFrameSourceFile(), SourceType.Stride));
         }
-        list.add(new SourceFileInfo(getJavaSourceFile(), SourceType.Java));
+        list.add(new SourceFileInfo(getSourceFile(), getSourceType()));
         return list;
     }
 
@@ -1136,6 +1146,13 @@ public class ClassTarget extends DependentTarget
                 Package pkg = getPackage();
                 final FXPlatformRunnable openCallback = this::recordEditorOpen;
                 editor = new FrameEditor(frameSourceFile, javaSourceFile, this, resolver, javadocResolver, pkg, openCallback);
+            } else if (sourceAvailable == SourceType.Kotlin) {
+//                File kotlinSourceFile = getKotlinSourceFile();
+
+                editor = EditorManager.getEditorManager().openClass(filename, "",
+                        project.getProjectCharset(),
+                        getBaseName(), project::getDefaultFXTabbedEditor, this, isCompiled(), resolver,
+                        project.getJavadocResolver(), this::recordEditorOpen);
             }
             
             // editor may be null if source has been deleted
@@ -1165,6 +1182,8 @@ public class ClassTarget extends DependentTarget
                 case Stride:
                     Config.recordEditorOpen(Config.SourceType.Stride);
                     break;
+                case Kotlin:
+                    Config.recordEditorOpen(Config.SourceType.Kotlin);
                 default:
                     break;
             }
@@ -1372,6 +1391,13 @@ public class ClassTarget extends DependentTarget
                     addStride(Loader.buildTopLevelElement(template, getPackage().getProject().getEntityResolver(),
                             getBaseName(), getPackage().getBaseName()));
                     success = true;
+                    break;
+                case Kotlin:
+
+                    success = role.generateSkeleton("../kotlin/" + template, getPackage(), getBaseName(), getKotlinSourceFile().getPath());
+                    break;
+                case Scala:
+                    success = role.generateSkeleton("../scala/" + template, getPackage(), getBaseName(), getKotlinSourceFile().getPath());
                     break;
                 default:
                     success = false;
@@ -2329,8 +2355,8 @@ public class ClassTarget extends DependentTarget
     public void prepareFilesForRemoval()
     {
         List<File> allFiles = getRole().getAllFiles(this);
-        for(Iterator<File> i = allFiles.iterator(); i.hasNext(); ) {
-            i.next().delete();
+        for(File i : allFiles) {
+            i.delete();
         }
     }
 
@@ -2344,7 +2370,7 @@ public class ClassTarget extends DependentTarget
     public void remove()
     {
         File frameSourceFile = getSourceType().equals(SourceType.Stride) ? getFrameSourceFile() : null;
-        File javaSourceFile = getJavaSourceFile();
+        File javaSourceFile = getSourceFile();
         prepareForRemoval();
         Package pkg = getPackage();
         pkg.removeTarget(this);
@@ -2565,7 +2591,11 @@ public class ClassTarget extends DependentTarget
 
     public CompileInputFile getCompileInputFile()
     {
-        return new CompileInputFile(getJavaSourceFile(), getSourceFile());
+        if (getSourceType() == SourceType.Stride) {
+            return new CompileInputFile(getJavaSourceFile(), getSourceFile());
+        }else {
+            return new CompileInputFile(getSourceFile(), getSourceFile());
+        }
     }
 
     /**

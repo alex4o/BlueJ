@@ -70,7 +70,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
     /** Which radio button is associated with which template */
     private final Map<RadioButton, TemplateInfo> templates = new IdentityHashMap<>();
     
-    /** The buttons for the source language (Java/Stride) */
+    /** The buttons for the source language (Java/Stride/Kotlin) */
     private final HorizontalRadio<SourceType> language;
 
     /** stores restricted windows class filenames */
@@ -139,7 +139,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
 
         mainPanel.getChildren().add(nameBox);
 
-        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride));
+        language = new HorizontalRadio(Arrays.asList(SourceType.Java, SourceType.Stride, SourceType.Kotlin));
         language.select(defaultSourceType);
         
         HBox langBox = new HBox();
@@ -234,6 +234,7 @@ class NewClassDialog extends Dialog<NewClassDialog.NewClassInfo>
         // (we do this rather than using the directory only to be able to force an order on the templates.)
         addDEFsTemplates(templates, SourceType.Java);
         addDEFsTemplates(templates, SourceType.Stride);
+        addDEFsTemplates(templates, SourceType.Kotlin);
 
         // next, get templates from files in template directory and merge them in
         addDirectoryTemplates(templates, SourceType.Java, parent);

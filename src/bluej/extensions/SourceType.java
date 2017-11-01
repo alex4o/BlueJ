@@ -27,13 +27,24 @@ package bluej.extensions;
 import threadchecker.OnThread;
 import threadchecker.Tag;
 
+
+import java.util.*;
 /**
  * The type of source that is available.
  */
 @OnThread(Tag.Any)
 public enum SourceType
 {
-    NONE, Java, Stride;
+    NONE, Java, Stride, Kotlin, Scala;
+
+    private static HashMap<String, SourceType> map = new HashMap<String, SourceType>(5);
+
+    static {
+        map.put("java", Java);
+        map.put("stride", Stride);
+        map.put("kotlin", Kotlin);
+        map.put("scala", Scala);
+    }
 
     public static SourceType getEnum(String s)
     {
@@ -41,13 +52,17 @@ public enum SourceType
             return NONE;
         }
         String lowerCase = s.toLowerCase();
-        if(lowerCase.equals("stride")){
-            return Stride;
-        }
-        if(lowerCase.equals("java")){
-            return Java;
-        }
-        throw new IllegalArgumentException("No Enum specified for this string");
+
+
+        return map.getOrDefault(lowerCase, NONE);
+
+//        if(lowerCase.equals("stride")){
+//            return Stride;
+//        }
+//        if(lowerCase.equals("java")){
+//            return Java;
+//        }
+        //throw new IllegalArgumentException("No Enum specified for this string");
     }
     
     public String getExtension()
@@ -56,6 +71,7 @@ public enum SourceType
         {
             case Java: return "java";
             case Stride: return "stride";
+            case Kotlin: return "kt";
             default: return "";
         }
     }

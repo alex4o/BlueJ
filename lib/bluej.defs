@@ -314,6 +314,9 @@ bluej.macos.screenmenubar=true
 
 bluej.classTemplates.java = stdclass abstract interface unittest enum
 bluej.classTemplates.stride = stdclass abstract interface
+
+bluej.classTemplates.kotlin = stdclass abstract interface unittest enum
+
 #bluej.templatePath = /home/mik/bluej/lib/english/templates/newclass
 #bluej.templatePath = F:\\shared\\bluej\\templates
 
@@ -490,7 +493,7 @@ bluej.vm.transport=dt_shmem
 ##  is written to a log file in the user's bluej settings directory.
 #######################################################################
 
-bluej.debug=false
+bluej.debug=true
 
 #######################################################################
 ## Images.

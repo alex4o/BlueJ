@@ -1563,7 +1563,7 @@ public class PkgMgrFrame
         }
 
         //check if there already exists a class in a library with that name 
-        String[] conflict=new String[1];
+        String[] conflict = new String[1];
         Class<?> c = thePkg.loadClass(thePkg.getQualifiedName(name));
         if (c != null){
             if (! Package.checkClassMatchesFile(c, new File(getPackage().getPath(), name + ".class"))) {

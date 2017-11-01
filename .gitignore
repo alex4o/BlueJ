@@ -1,0 +1,8 @@
+*.class
+lib/bluej.jar
+lib/bluejcore.jar
+lib/bluejeditor.jar
+lib/bluejext.jar
+lib/lang-stride.jar
+threadchecker/classes/
+.idea

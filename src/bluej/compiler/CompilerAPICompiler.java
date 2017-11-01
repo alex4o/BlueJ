@@ -23,6 +23,7 @@ package bluej.compiler;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -31,6 +32,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import javax.tools.Diagnostic;
 import javax.tools.DiagnosticListener;
@@ -73,9 +75,27 @@ public class CompilerAPICompiler extends Compiler
      * @return  true if successful
      */
     @Override
-    public boolean compile(final File[] sources, final CompileObserver observer,
+    public boolean compile(File[] arg_sources, final CompileObserver observer,
             final boolean internal, List<String> userOptions, Charset fileCharset, CompileType type)
     {
+
+        File[] kotlinfiles = Arrays.stream(arg_sources).filter(file -> file.getName().endsWith(".kt")).toArray(File[]::new);
+        final File[] sources = Arrays.stream(arg_sources).filter(file -> file.getName().endsWith(".java")).toArray(File[]::new);
+
+        if(kotlinfiles.length > 0) {
+            KotlinAPICompiler.compile(kotlinfiles, observer, type);
+
+            if(kotlinfiles.length == arg_sources.length){
+                return true;
+            }
+        }
+
+        if(sources.length < 1){
+            return false;
+        }
+
+        //System.out.println(sources[0].getName());
+
         boolean result = true;
         JavaCompiler jc = ToolProvider.getSystemJavaCompiler();
         List<String> optionsList = new ArrayList<String>();

@@ -35,6 +35,8 @@ import bluej.utility.Utility;
  * Reasonably generic interface between the BlueJ IDE and the Java compiler.
  * 
  * @author Michael Cahill
+ *
+ * @is singleton
  */
 public class JobQueue
 {
